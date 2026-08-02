@@ -5,9 +5,26 @@
 
 | 그룹 | ServicePath | 게이트웨이 | 인증키 | 우리 키 상태 |
 |------|-------------|-----------|--------|-------------|
-| 법적 상태 이력 (기본 5종) | `legStatusInfoSearchService` | KIPO (`/kipo-api/kipi/`) | `ServiceKey` | ✅ `rc=00` 정상 |
+| 법적 상태 이력 (기본 5종) | `legStatusInfoSearchService` | KIPO (`/kipo-api/kipi/`) | `ServiceKey` | ✅ **디자인·상표만** (Tier 1) |
 | 특허·실용 ST.27 (10종) | `legStatusST27InfoSearchService` | OpenAPI (`/openapi/rest/`) | `accessKey` | ⛔ `rc=31` (KIPRIS 측 이상) |
 | 디자인 ST.87 (8종) | `legStatusST87InfoSearchService` | OpenAPI (`/openapi/rest/`) | `accessKey` | ✅ `rc=00` 정상 |
+
+> ### 📌 2025-07-05 서비스 분리 — 특허·실용이 기본 서비스에서 빠졌습니다
+>
+> KIPRIS 공지([popTerms_legal.jsp](https://plus.kipris.or.kr/portal/popTerms_legal.jsp)):
+> *"'25.7.4 자 발행분까지는 특허·실용신안을 포함하여 제공, '25.7.5 자 이후 발행분부터는 디자인, 상표 권리만 제공"*
+> 특허·실용은 국제표준 **ST.27 상품으로 이관**됐습니다.
+>
+> 실측 확인 (2026-08-02, `getLegStatusHistoryInfoSearch`):
+>
+> | 출원번호 | 결과 |
+> |---------|------|
+> | 특허 `10…` | `rc=00` · **빈 응답** (316 bytes) |
+> | 실용 `20…` | `rc=00` · **빈 응답** (316 bytes) |
+> | 디자인 `30…` | `rc=00` · 40건 반환 (4,161 bytes) |
+> | 상표 `40…` | `rc=00` · 20건 반환 (1,982 bytes) |
+>
+> **오류가 아니라 빈 응답**이라 "그 특허는 이력이 없다"로 오해하기 쉽습니다. 특허·실용은 반드시 ST.27로 가세요.
 
 > ### ⛔ ST.27 경로는 구독이 유효한데도 `rc=31 DEADLINE_HAS_EXPIRED_ERROR`를 반환합니다
 >
@@ -21,8 +38,14 @@
 >    `legStatusST27InfoSearchService`만 200 응답 → 등록된 실제 라우트
 > 6. **게이트웨이 무관** — OpenAPI(`accessKey`)·KIPO(`ServiceKey`) 양쪽 다 `rc=31`
 >
-> → KIPRIS 서버 측 라우트 이상으로 판단. HelpDesk(02-6915-1553) 문의 대상입니다.
-> ST.87 데이터로 우회 가능한 범위는 우회하세요.
+>
+> **유력 원인**: ST.27은 2025-07-05 분리 때 **신설된 별도 상품**입니다. 주문 #16(2026.01.21)의
+> 표시명에는 ST.27이 포함돼 있으나, 실제 엔타이틀먼트에 ST.27이 안 붙었을 가능성이 큽니다
+> (상품 분류 체계가 2026-03-17 공지로 또 한 번 변경됨 — 공지 #383).
+> `rc=31 DEADLINE_HAS_EXPIRED_ERROR`는 "이 키에 이 상품의 유효 이용기간이 없음"으로 읽힙니다.
+>
+> → HelpDesk(02-6915-1553)에 **"주문 #16에 ST.27 엔타이틀먼트가 실제로 부여됐는지"** 확인 요청.
+> 그 전까지 특허·실용 법적상태는 조회 불가이며, 디자인·상표는 기본 서비스로 정상 조회됩니다.
 
 ### 호출 예시
 

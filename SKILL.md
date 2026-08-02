@@ -33,7 +33,7 @@ echo $KIPRIS_API_KEY
 
 > 두 게이트웨이가 동일 키를 공유할 수도 있고, 별도일 수도 있습니다. 사용자에게 확인하세요.
 
-## 구현된 오퍼레이션 (Tier 1) — 즉시 사용 가능 (16개)
+## 구현된 오퍼레이션 (Tier 1) — 즉시 사용 가능 (18개)
 
 ### 한국 특허·실용신안 (7개)
 
@@ -60,6 +60,20 @@ echo $KIPRIS_API_KEY
 | 국제공개번호 | `internationalOpenNumberSearch` | OpenAPI | `accessKey` | `ForeignPatentAdvencedSearchService` | `response.body.items.searchResult` | `internationalOpenNumber`, `collectionValues`, `currentPage` |
 | 출원인 | `applicantSearch` | OpenAPI | `accessKey` | `ForeignPatentAdvencedSearchService` | `response.body.items.searchResult` | `applicant`, `collectionValues`, `currentPage` |
 | 국제출원번호 | `internationalApplicationNumberSearch` | OpenAPI | `accessKey` | `ForeignPatentAdvencedSearchService` | `response.body.items.searchResult` | `internationalApplicationNumber`, `collectionValues`, `currentPage` |
+
+### 법적 상태 이력 (2개) — ⚠️ 디자인·상표 전용
+
+| 오퍼레이션 | ID | 게이트웨이 | 인증키 | ServicePath | 응답 루트 키 | 주요 파라미터 |
+|-----------|-----|----------|--------|-------------|------------|-------------|
+| 이력정보조회 | `getLegStatusHistoryInfoSearch` | KIPO | `ServiceKey` | `legStatusInfoSearchService` | `response.body.items.legalStatusBasicInfo` | `applicationNumber` |
+| 이벤트정보조회 | `getLegStatusEventInfoSearch` | KIPO | `ServiceKey` | `legStatusInfoSearchService` | `response.body.Item` | `applicationNumber` |
+
+> **⚠️ 특허·실용(`10…`/`20…`)은 이 서비스에서 빠졌습니다.** 2025-07-05 발행분부터 특허·실용
+> 데이터가 제거되고 별도 상품 **ST.27**(`legStatusST27InfoSearchService`)로 이관됐습니다.
+> 특허 출원번호를 넣으면 **오류 없이 `rc=00` + 빈 응답**이 와서 "데이터 없음"으로 오해하기 쉽습니다.
+>
+> - 디자인(`30…`)·상표(`40…`) → 이 서비스 사용 (실측: 디자인 40건·상표 20건 반환)
+> - 특허·실용(`10…`/`20…`) → ST.27 필요 (현재 `rc=31`로 막힘 — `docs/services/legal_status.md` 참고)
 
 ### 해외특허 국가코드
 
@@ -126,7 +140,7 @@ echo $KIPRIS_API_KEY
 - 해외 서지상세·청구항·전문 → `bibliographicInfo` / `demandParagraphInfo` / `openFullTextInfo` (**`ltrtno` 선확보 필요 — 위 "2단계 호출" 참고**)
 - 출원인·대리인·발명자 이름 정규화, 인물번호 확보 → `CommonSearchService` (`docs/services/common_search.md`)
 - 권리 이전·권리자 변경 이력 → `RightHolderService` (**등록번호 기준** — `docs/services/right_holder_history.md`)
-- 법적 상태(출원→소멸 전주기) → `legStatusInfoSearchService` (KIPO 게이트웨이·`ServiceKey`) / ST.27·ST.87은 OpenAPI 게이트웨이 별도 경로 — `docs/services/legal_status.md`
+- 법적 상태 이력 → **권리 종류로 경로가 갈립니다**: 디자인·상표는 `legStatusInfoSearchService`(KIPO), 디자인 상세는 `legStatusST87InfoSearchService`(OpenAPI), 특허·실용은 `legStatusST27InfoSearchService`(현재 `rc=31`) — `docs/services/legal_status.md`
 
 ### 3단계: URL 구성 및 curl 실행
 
