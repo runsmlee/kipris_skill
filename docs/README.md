@@ -22,26 +22,32 @@ KIPRIS API는 두 가지 게이트웨이를 사용합니다:
 
 ```
 # 패턴 A — KIPRIS OpenAPI 게이트웨이
-http://plus.kipris.or.kr/openapi/rest/{ServicePath}/{operationName}?accessKey={API_KEY}&param1=value1
+https://plus.kipris.or.kr/openapi/rest/{ServicePath}/{operationName}?accessKey={API_KEY}&param1=value1
 
 # 패턴 B — 공공데이터 포털 연계 (KIPO API)
-http://plus.kipris.or.kr/kipo-api/kipi/{ServicePath}/{operationName}?ServiceKey={API_KEY}&param1=value1
+https://plus.kipris.or.kr/kipo-api/kipi/{ServicePath}/{operationName}?ServiceKey={API_KEY}&param1=value1
 ```
 
-### 서비스 경로 매핑 (24개 확인)
+### 서비스 경로 매핑 (25개 확인)
 
-#### API 키로 검증 완료 (2개)
+> **⚠️ 모든 호출은 `https://`.** 동일 키·동일 경로라도 `http://`는 `resultCode: 30`
+> (`SERVICE_KEY_IS_NOT_REGISTERED_ERROR`)을 반환합니다. 키 미등록으로 오진하지 마세요.
 
-| 서비스명 | ServicePath | 게이트웨이 |
-|---------|-------------|-----------|
-| 특허·실용 공개·등록공보 | `patUtiModInfoSearchSevice` | A + B (오퍼레이션별 상이) |
-| 해외특허 (고급검색) | `ForeignPatentAdvencedSearchService` | A |
+#### API 키로 검증 완료 (6개) — 실호출 확인 2026-08-02
 
-#### 포털 크롤링 확인 (15개)
+| 서비스명 | ServicePath | 게이트웨이 | 확인 근거 |
+|---------|-------------|-----------|----------|
+| 특허·실용 공개·등록공보 | `patUtiModInfoSearchSevice` | A + B (오퍼레이션별 상이) | `getWordSearch`·`getAdvancedSearch`·`freeSearchInfo` → `rc=00` |
+| 해외특허 (고급검색) | `ForeignPatentAdvencedSearchService` | A | `freeSearch`·`advancedSearch` → 결과 반환 |
+| 해외특허 (서지·청구항) | `ForeignPatentBibliographicService` | A | `bibliographicInfo`·`demandParagraphInfo` → 데이터 반환 |
+| 특허·실용 인용문헌 | `CitationService` | A | `rc=11` 필수 파라미터 누락 → 경로 유효 |
+| 의견제출통지서 | `IntermediateDocumentOPService` | A | `advancedSearchInfo` → 정상 응답 |
+| 거절결정서 | `IntermediateDocumentREService` | A | `advancedSearchInfo` → 정상 응답 |
+
+#### 포털 크롤링 확인 (14개)
 
 | 서비스명 | ServicePath | 게이트웨이 | DBII |
 |---------|-------------|-----------|------|
-| 특허·실용 인용문헌 | `CitationService` | A | 004 |
 | 특허 관련 문서 | `RelatedDocsonfilePatService` | A | 005 |
 | 특허·실용 분류코드 변동 이력 | `PatentClassificationInfoService` | A | 007 |
 | 디자인 공보 | `designInfoSearchService` | B | 008 |
@@ -57,7 +63,7 @@ http://plus.kipris.or.kr/kipo-api/kipi/{ServicePath}/{operationName}?ServiceKey=
 | 한국특허영문초록(KPA) | `KpaGeneralSearchService` | A | 024 |
 | 기계번역용 국문초록 | `KorAbstractInfoService` | A | 025 |
 
-#### GitHub 코드 검색 확인 — 미검증 (7개)
+#### GitHub 코드 검색 확인 — 미검증 (5개)
 
 | 서비스명 (추정) | ServicePath | 게이트웨이 (추정) |
 |---------------|-------------|-----------------|
@@ -65,8 +71,6 @@ http://plus.kipris.or.kr/kipo-api/kipi/{ServicePath}/{operationName}?ServiceKey=
 | 특허·실용 피인용문헌 | `CitingService` | A |
 | 특허 패밀리 | `patFamInfoSearchService` | B |
 | 출원인 법인 | `CorpBsApplicantService` | A |
-| 의견제출통지서 | `IntermediateDocumentOPService` | A |
-| 거절결정서 | `IntermediateDocumentREService` | A |
 | 상표 분류코드 | `TradeMarkClassificationInfoService` | A |
 
 > 게이트웨이: A = OpenAPI (`/openapi/rest/`), B = KIPO API (`/kipo-api/kipi/`)
@@ -106,13 +110,13 @@ http://plus.kipris.or.kr/kipo-api/kipi/{ServicePath}/{operationName}?ServiceKey=
 
 ```bash
 # 특허·실용 자유검색 (OpenAPI 게이트웨이)
-curl "http://plus.kipris.or.kr/openapi/rest/patUtiModInfoSearchSevice/freeSearchInfo?accessKey=${KIPRIS_API_KEY}&word=인공지능&patent=true&utility=true"
+curl "https://plus.kipris.or.kr/openapi/rest/patUtiModInfoSearchSevice/freeSearchInfo?accessKey=${KIPRIS_API_KEY}&word=인공지능&patent=true&utility=true"
 
 # 특허·실용 전체검색 (KIPO API 게이트웨이)
-curl "http://plus.kipris.or.kr/kipo-api/kipi/patUtiModInfoSearchSevice/getAdvancedSearch?ServiceKey=${KIPRIS_API_KEY}&word=인공지능&patent=true&utility=true&numOfRows=10&pageNo=1"
+curl "https://plus.kipris.or.kr/kipo-api/kipi/patUtiModInfoSearchSevice/getAdvancedSearch?ServiceKey=${KIPRIS_API_KEY}&word=인공지능&patent=true&utility=true&numOfRows=10&pageNo=1"
 
 # 해외특허 자유검색 (OpenAPI 게이트웨이)
-curl "http://plus.kipris.or.kr/openapi/rest/ForeignPatentAdvencedSearchService/freeSearch?accessKey=${KIPRIS_API_KEY}&free=artificial+intelligence&collectionValues=US"
+curl "https://plus.kipris.or.kr/openapi/rest/ForeignPatentAdvencedSearchService/freeSearch?accessKey=${KIPRIS_API_KEY}&free=artificial+intelligence&collectionValues=US"
 ```
 
 ## 전체 현황
@@ -120,9 +124,9 @@ curl "http://plus.kipris.or.kr/openapi/rest/ForeignPatentAdvencedSearchService/f
 | 항목 | 수치 |
 |------|------|
 | 포털 등록 서비스 | 49개 |
-| ServicePath 확인 (스킬 지원) | 20개 |
-| ServicePath 미확인 (스킬 미지원) | 29개 |
-| 구현 완료 오퍼레이션 | 12개 |
+| ServicePath 확인 (스킬 지원) | 25개 |
+| ServicePath 미확인 (스킬 미지원) | 24개 |
+| 구현 완료 오퍼레이션 | 15개 |
 | 폐기예정 오퍼레이션 | 30개 |
 
 ## 서비스 목록
@@ -149,7 +153,7 @@ curl "http://plus.kipris.or.kr/openapi/rest/ForeignPatentAdvencedSearchService/f
 | 16 | 시소러스 | 2개 | ✅ | ❌ 0/2 | [상세](services/thesaurus.md) |
 | 17 | 한국특허영문초록(KPA) | 26개 | ✅ | ❌ 0/26 | [상세](services/kpa_english_abstract.md) |
 | 18 | 기계번역용 국문초록 | 1개 | ✅ | ❌ 0/1 | [상세](services/machine_translation_abstract.md) |
-| 19 | 해외특허 | 81개 | ✅ | ✅ 5/81 | [상세](services/foreign_patent.md) |
+| 19 | 해외특허 | 81개 | ✅ | ✅ 8/81 | [상세](services/foreign_patent.md) |
 | 20 | 특허 패밀리 | 5개 | ✅ | ❌ 0/5 | [상세](services/patent_family.md) |
 | 21 | 다인용 선행문헌 | 2개 | ⚠️ | ❌ 0/2 | [상세](services/multi_citation.md) |
 | 22 | 국유특허 | 2개 | ⚠️ | ❌ 0/2 | [상세](services/government_patent.md) |

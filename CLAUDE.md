@@ -21,8 +21,8 @@ KIPRIS Plus Open API를 활용한 **한국 지식재산 검색 Claude Code Skill
 
 | 게이트웨이 | URL 패턴 | 인증 키 |
 |-----------|---------|---------|
-| OpenAPI (패턴 A) | `http://plus.kipris.or.kr/openapi/rest/{ServicePath}/{operation}` | `accessKey` (KIPRIS Plus 발급) |
-| KIPO API (패턴 B) | `http://plus.kipris.or.kr/kipo-api/kipi/{ServicePath}/{operation}` | `ServiceKey` (공공데이터 포털 발급) |
+| OpenAPI (패턴 A) | `https://plus.kipris.or.kr/openapi/rest/{ServicePath}/{operation}` | `accessKey` (KIPRIS Plus 발급) |
+| KIPO API (패턴 B) | `https://plus.kipris.or.kr/kipo-api/kipi/{ServicePath}/{operation}` | `ServiceKey` (공공데이터 포털 발급) |
 
 동일 서비스라도 오퍼레이션에 따라 게이트웨이가 다를 수 있음. 각 오퍼레이션 문서의 Endpoint를 반드시 확인할 것.
 

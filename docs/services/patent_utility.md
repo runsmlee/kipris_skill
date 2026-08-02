@@ -104,7 +104,7 @@
 
 - **분류**: 항목별검색
 - **상태**: ✅ 구현됨 → `KoreanPatentSearchTool`
-- **Endpoint**: `http://plus.kipris.or.kr/kipo-api/kipi/patUtiModInfoSearchSevice/getAdvancedSearch`
+- **Endpoint**: `https://plus.kipris.or.kr/kipo-api/kipi/patUtiModInfoSearchSevice/getAdvancedSearch`
 - **인증 키**: `ServiceKey` (공공데이터 포털)
 - **응답 루트 키**: `response.body.items.item`
 
@@ -176,7 +176,7 @@
 
 - **분류**: 항목별검색
 - **상태**: ✅ 구현됨 → `KoreanPatentFreeSearchTool`
-- **Endpoint**: `http://plus.kipris.or.kr/openapi/rest/patUtiModInfoSearchSevice/freeSearchInfo`
+- **Endpoint**: `https://plus.kipris.or.kr/openapi/rest/patUtiModInfoSearchSevice/freeSearchInfo`
 - **인증 키**: `accessKey` (KIPRIS Plus)
 - **응답 루트 키**: `response.body.items.PatentUtilityInfo`
 
@@ -224,7 +224,7 @@
 
 - **분류**: 항목별검색
 - **상태**: ✅ 구현됨 → `KoreanPatentApplicationNumberSearchTool`
-- **Endpoint**: `http://plus.kipris.or.kr/openapi/rest/patUtiModInfoSearchSevice/applicationNumberSearchInfo`
+- **Endpoint**: `https://plus.kipris.or.kr/openapi/rest/patUtiModInfoSearchSevice/applicationNumberSearchInfo`
 - **인증 키**: `accessKey` (KIPRIS Plus)
 - **응답 루트 키**: `response.body.items.PatentUtilityInfo`
 
@@ -1099,7 +1099,7 @@
 
 - **분류**: 항목별검색
 - **상태**: ✅ 구현됨 → `KoreanPatentApplicantSearchTool`
-- **Endpoint**: `http://plus.kipris.or.kr/openapi/rest/patUtiModInfoSearchSevice/applicantNameSearchInfo`
+- **Endpoint**: `https://plus.kipris.or.kr/openapi/rest/patUtiModInfoSearchSevice/applicantNameSearchInfo`
 - **인증 키**: `accessKey` (KIPRIS Plus)
 - **응답 루트 키**: `response.body.items.PatentUtilityInfo`
 
@@ -1240,7 +1240,7 @@
 
 - **분류**: 항목별검색
 - **상태**: ✅ 구현됨 → `KoreanPatentRighterSearchTool`
-- **Endpoint**: `http://plus.kipris.or.kr/openapi/rest/patUtiModInfoSearchSevice/rightHolerSearchInfo`
+- **Endpoint**: `https://plus.kipris.or.kr/openapi/rest/patUtiModInfoSearchSevice/rightHolerSearchInfo`
 - **인증 키**: `accessKey` (KIPRIS Plus)
 - **응답 루트 키**: `response.body.items.PatentUtilityInfo`
 
@@ -1289,7 +1289,7 @@
 
 - **분류**: 서지정보
 - **상태**: ✅ 구현됨 → `KoreanPatentDetailSearchTool`
-- **Endpoint**: `http://plus.kipris.or.kr/kipo-api/kipi/patUtiModInfoSearchSevice/getBibliographyDetailInfoSearch`
+- **Endpoint**: `https://plus.kipris.or.kr/kipo-api/kipi/patUtiModInfoSearchSevice/getBibliographyDetailInfoSearch`
 - **인증 키**: `ServiceKey` (공공데이터 포털)
 - **응답 루트 키**: `response.body.item`
 
@@ -1409,7 +1409,7 @@
 
 - **분류**: 서지정보
 - **상태**: ✅ 구현됨 → `KoreanPatentSummarySearchTool`
-- **Endpoint**: `http://plus.kipris.or.kr/kipo-api/kipi/patUtiModInfoSearchSevice/getBibliographySumryInfoSearch`
+- **Endpoint**: `https://plus.kipris.or.kr/kipo-api/kipi/patUtiModInfoSearchSevice/getBibliographySumryInfoSearch`
 - **인증 키**: `ServiceKey` (공공데이터 포털)
 - **응답 루트 키**: `response.body.items.item`
 

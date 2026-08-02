@@ -33,7 +33,7 @@ echo $KIPRIS_API_KEY
 
 > 두 게이트웨이가 동일 키를 공유할 수도 있고, 별도일 수도 있습니다. 사용자에게 확인하세요.
 
-## 구현된 오퍼레이션 (Tier 1) — 즉시 사용 가능
+## 구현된 오퍼레이션 (Tier 1) — 즉시 사용 가능 (15개)
 
 ### 한국 특허·실용신안 (7개)
 
@@ -47,10 +47,13 @@ echo $KIPRIS_API_KEY
 | 서지상세 | `getBibliographyDetailInfoSearch` | KIPO | `ServiceKey` | `patUtiModInfoSearchSevice` | `response.body.item` | `applicationNumber` |
 | 서지요약 | `getBibliographySumryInfoSearch` | KIPO | `ServiceKey` | `patUtiModInfoSearchSevice` | `response.body.items.item` | `applicationNumber` |
 
-### 해외특허 (5개)
+### 해외특허 (8개)
 
 | 오퍼레이션 | ID | 게이트웨이 | 인증키 | ServicePath | 응답 루트 키 | 주요 파라미터 |
 |-----------|-----|----------|--------|-------------|------------|-------------|
+| 전체검색(항목별) | `advancedSearch` | OpenAPI | `accessKey` | `ForeignPatentAdvencedSearchService` | `response.body.items.searchResult` | `free`, `inventionName`, `applicant`, `inventors`, `agents`, `ipc`, `upc`, `fi`, `fterm`, `epc`, `applicationNo`, `openNo`, `registerNo`, `priorityNo`, `internationalOpenNo`, `internationalApplicationNo`, `applicationdate`, `openDate`, `registerDate`, `priorityDate`, `internationalOpenDate`, `internationalApplicationDate`, `abstracts`, `claimExtend`, `detailsDescription`, `collectionValues`, `currentPage`, `sortField`, `sortState` (전체 31개 필드 → `docs/services/foreign_patent.md`) |
+| 서지상세 | `bibliographicInfo` | OpenAPI | `accessKey` | `ForeignPatentBibliographicService` | `response.body.items` | `literatureNumber` (검색 결과의 `ltrtno`), `countryCode` |
+| 청구항 | `demandParagraphInfo` | OpenAPI | `accessKey` | `ForeignPatentBibliographicService` | `response.body.items` | `literatureNumber`, `countryCode` |
 | 자유검색 | `freeSearch` | OpenAPI | `accessKey` | `ForeignPatentAdvencedSearchService` | `response.body.items.searchResult` | `free`, `collectionValues` (국가코드), `currentPage` |
 | 출원번호 | `applicationNumberSearch` | OpenAPI | `accessKey` | `ForeignPatentAdvencedSearchService` | `response.body.items.searchResult` | `applicationNumber`, `collectionValues`, `currentPage` |
 | 국제공개번호 | `internationalOpenNumberSearch` | OpenAPI | `accessKey` | `ForeignPatentAdvencedSearchService` | `response.body.items.searchResult` | `internationalOpenNumber`, `collectionValues`, `currentPage` |
@@ -75,11 +78,22 @@ echo $KIPRIS_API_KEY
 
 ```
 # OpenAPI 게이트웨이 (accessKey)
-http://plus.kipris.or.kr/openapi/rest/{ServicePath}/{operationId}?accessKey={KIPRIS_API_KEY}&param1=value1
+https://plus.kipris.or.kr/openapi/rest/{ServicePath}/{operationId}?accessKey={KIPRIS_API_KEY}&param1=value1
 
 # KIPO 게이트웨이 (ServiceKey)
-http://plus.kipris.or.kr/kipo-api/kipi/{ServicePath}/{operationId}?ServiceKey={KIPRIS_API_KEY}&param1=value1
+https://plus.kipris.or.kr/kipo-api/kipi/{ServicePath}/{operationId}?ServiceKey={KIPRIS_API_KEY}&param1=value1
 ```
+
+> **⚠️ 반드시 `https://`.** 같은 키·같은 경로라도 `http://`로 호출하면 `resultCode: 30`
+> (`SERVICE_KEY_IS_NOT_REGISTERED_ERROR` / `AccessKey Is Not Registerd Error`)이 돌아옵니다.
+> 키 미등록으로 오진하기 쉬우니 `rc=30`이 뜨면 프로토콜부터 확인하세요. (실측 검증 2026-08-02)
+
+### 해외 서지·청구항은 2단계 호출
+
+`ForeignPatentBibliographicService`는 출원번호가 아니라 **문헌번호(`ltrtno`)**를 받습니다:
+
+1. `ForeignPatentAdvencedSearchService`로 검색 → 결과의 `ltrtno` 확보 (예: `000012573236B2`)
+2. `bibliographicInfo` / `demandParagraphInfo`에 `literatureNumber={ltrtno}&countryCode={국가코드}` 전달
 
 ## API 사용 제한
 
@@ -105,7 +119,8 @@ echo $KIPRIS_API_KEY
 - 등록권자 검색 → `rightHolerSearchInfo` (**⚠️ 아래 "등록권자 검색 주의사항" 참고**)
 - 상세 서지정보 → `getBibliographyDetailInfoSearch`
 - 요약 서지정보 → `getBibliographySumryInfoSearch`
-- 전체검색 (다항목) → `getAdvancedSearch`
+- 전체검색 (다항목) → `getAdvancedSearch` (국내) / `advancedSearch` (해외, IPC·CPC·F-Term 등 31개 필드)
+- 해외 서지상세·청구항 → `bibliographicInfo` / `demandParagraphInfo` (**`ltrtno` 선확보 필요 — 위 "2단계 호출" 참고**)
 
 ### 3단계: URL 구성 및 curl 실행
 
@@ -116,7 +131,7 @@ API 키에 `/`, `+`, `=` 등 특수문자가 포함될 수 있으므로 반드�
 ENCODED_KEY=$(python3 -c "import urllib.parse; print(urllib.parse.quote('${KIPRIS_API_KEY}', safe=''))")
 
 # 예: 국내 자유검색
-curl -s "http://plus.kipris.or.kr/openapi/rest/patUtiModInfoSearchSevice/freeSearchInfo?accessKey=${ENCODED_KEY}&word=인공지능&patent=true&utility=true&docsCount=10&docsStart=1"
+curl -s "https://plus.kipris.or.kr/openapi/rest/patUtiModInfoSearchSevice/freeSearchInfo?accessKey=${ENCODED_KEY}&word=인공지능&patent=true&utility=true&docsCount=10&docsStart=1"
 ```
 
 ### 4단계: XML → JSON 파싱

@@ -195,7 +195,7 @@
 
 - **분류**: 항목별검색
 - **상태**: ✅ 구현됨 → `ForeignPatentFreeSearchTool`
-- **Endpoint**: `http://plus.kipris.or.kr/openapi/rest/ForeignPatentAdvencedSearchService/freeSearch`
+- **Endpoint**: `https://plus.kipris.or.kr/openapi/rest/ForeignPatentAdvencedSearchService/freeSearch`
 - **인증 키**: `accessKey` (KIPRIS Plus)
 - **응답 루트 키**: `response.body.items.searchResult`
 
@@ -708,7 +708,7 @@
 
 - **분류**: 항목별검색
 - **상태**: ✅ 구현됨 → `ForeignPatentApplicationNumberSearchTool`
-- **Endpoint**: `http://plus.kipris.or.kr/openapi/rest/ForeignPatentAdvencedSearchService/applicationNumberSearch`
+- **Endpoint**: `https://plus.kipris.or.kr/openapi/rest/ForeignPatentAdvencedSearchService/applicationNumberSearch`
 - **인증 키**: `accessKey` (KIPRIS Plus)
 - **응답 루트 키**: `response.body.items.searchResult`
 
@@ -915,7 +915,7 @@
 
 - **분류**: 항목별검색
 - **상태**: ✅ 구현됨 → `ForeignPatentInternationalOpenNumberSearchTool`
-- **Endpoint**: `http://plus.kipris.or.kr/openapi/rest/ForeignPatentAdvencedSearchService/internationalOpenNumberSearch`
+- **Endpoint**: `https://plus.kipris.or.kr/openapi/rest/ForeignPatentAdvencedSearchService/internationalOpenNumberSearch`
 - **인증 키**: `accessKey` (KIPRIS Plus)
 - **응답 루트 키**: `response.body.items.searchResult`
 
@@ -1275,7 +1275,7 @@
 
 - **분류**: 항목별검색
 - **상태**: ✅ 구현됨 → `ForeignPatentApplicantSearchTool`
-- **Endpoint**: `http://plus.kipris.or.kr/openapi/rest/ForeignPatentAdvencedSearchService/applicantSearch`
+- **Endpoint**: `https://plus.kipris.or.kr/openapi/rest/ForeignPatentAdvencedSearchService/applicantSearch`
 - **인증 키**: `accessKey` (KIPRIS Plus)
 - **응답 루트 키**: `response.body.items.searchResult`
 
@@ -1431,7 +1431,7 @@
 
 - **분류**: 항목별검색
 - **상태**: ✅ 구현됨 → `ForeignPatentInternationalApplicationNumberSearchTool`
-- **Endpoint**: `http://plus.kipris.or.kr/openapi/rest/ForeignPatentAdvencedSearchService/internationalApplicationNumberSearch`
+- **Endpoint**: `https://plus.kipris.or.kr/openapi/rest/ForeignPatentAdvencedSearchService/internationalApplicationNumberSearch`
 - **인증 키**: `accessKey` (KIPRIS Plus)
 - **응답 루트 키**: `response.body.items.searchResult`
 
