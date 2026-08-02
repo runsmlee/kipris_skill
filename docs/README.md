@@ -105,6 +105,31 @@ https://plus.kipris.or.kr/kipo-api/kipi/{ServicePath}/{operationName}?ServiceKey
 </response>
 ```
 
+### resultCode 표 (실측 도출 — 공식 문서 미공개)
+
+KIPRIS는 resultCode 표를 공개하지 않습니다. 확인한 자료에 모두 없었습니다:
+2020년판 이용 가이드 PDF(FAQ만 수록), 동봉 샘플 코드, 공공데이터포털 페이지,
+API Status 페이지. 「API 통합설명서(명세서)」는 로그인 게이트입니다.
+
+아래는 2026-08-02 실호출로 직접 관찰한 동작입니다.
+
+| code | resultMsg | 실측 의미 | 대응 |
+|------|-----------|----------|------|
+| `00` (또는 빈값) | `NORMAL SERVICE.` / `success` | 정상 | — |
+| `10` | `INVALID_REQUEST_PARAMETER` | 파라미터 **값**이 부적절 | 값 형식 확인 |
+| `11` | `NO_MANDATORY_REQUEST_PARAMETER` | 필수 파라미터 **누락** | 필수 항목 추가 |
+| `30` | `SERVICE_KEY_IS_NOT_REGISTERED` / `AccessKey Is Not Registerd` | 인증 자체가 성립 안 됨 | ① `http://` 사용 여부 ② 게이트웨이별 키 파라미터명(`accessKey` vs `ServiceKey`) |
+| `31` | `DEADLINE_HAS_EXPIRED_ERROR` | **키는 인식됨**. 그 서비스의 유효 이용기간/권한이 없음 | 해당 상품 활용신청 상태 확인 |
+| `101` | `AccessKey&ServiceID Is Not Registerd` | 미신청 API 호출 (구 가이드 기재) | 활용신청 |
+
+**`30`과 `31`의 구분이 진단의 핵심입니다.** 인증 파라미터명을 일부러 틀리게 보내면 `30`,
+올바르게 보내면 `31`이 나옵니다 — 즉 `31`은 키가 정상 인식된 뒤 권한 단계에서 걸린 것이므로
+호출 방식 문제가 아닙니다. `30`은 반대로 프로토콜/파라미터명 문제이지 구독 문제가 아닙니다.
+
+> KIPO 게이트웨이(`/kipo-api/kipi/`)는 **존재하지 않는 경로에도 `31`**을 반환합니다.
+> 이 게이트웨이에서는 `31`로 경로 유효성을 판별할 수 없습니다.
+> OpenAPI 게이트웨이(`/openapi/rest/`)는 무효 경로에 302를 주므로 판별이 가능합니다.
+
 ### 응답 데이터 루트 키 (확인된 것)
 
 | 서비스 / 오퍼레이션 | 응답 루트 키 |
