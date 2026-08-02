@@ -7,10 +7,14 @@
 |------|-------------|-----------|--------|-------------|
 | 법적 상태 이력 (기본 5종) | `legStatusInfoSearchService` | KIPO (`/kipo-api/kipi/`) | `ServiceKey` | ✅ `rc=00` 정상 |
 | 특허·실용 ST.27 (10종) | `legStatusST27InfoSearchService` | OpenAPI (`/openapi/rest/`) | `accessKey` | ⚠️ `rc=31` 구독 만료 |
-| 디자인 ST.87 (8종) | `legStatusST87InfoSearchService` | OpenAPI (`/openapi/rest/`) | `accessKey` | ⚠️ `rc=31` 구독 만료 |
+| 디자인 ST.87 (8종) | `legStatusST87InfoSearchService` | OpenAPI (`/openapi/rest/`) | `accessKey` | ✅ `rc=00` 정상 |
 
-> **ST.27/ST.87은 경로가 유효한데 우리 키가 구독 만료 상태**입니다 (`rc=31 DEADLINE_HAS_EXPIRED_ERROR`).
-> 무효 경로는 302를, 유효 경로는 200을 반환하므로 이 둘은 구분됩니다 — 경로 문제가 아니라 **KIPRIS Plus 활용신청/갱신** 문제입니다.
+> **ST.27만 `rc=31 DEADLINE_HAS_EXPIRED_ERROR`** — 출원번호를 무엇으로 바꿔도 동일하므로
+> 데이터 문제가 아니라 **해당 서비스의 활용신청 기간 만료**입니다. 같은 키로 다른 10개 서비스는 정상 동작합니다.
+> KIPRIS Plus에서 ST.27 서비스만 갱신하면 열립니다.
+>
+> **⚠️ ST.87에는 디자인 출원번호(`30…`)를 넣어야 합니다.** 특허 출원번호(`10…`)를 넣으면
+> 데이터가 없어 오해하기 쉽습니다 — 권리 종류에 맞는 번호를 쓰세요.
 
 ### 호출 예시
 
@@ -59,8 +63,9 @@ curl -s "https://plus.kipris.or.kr/openapi/rest/legStatusST27InfoSearchService/B
 포털 기준 8종, 실호출 탐침으로 8종 전부 유효 확인:
 `BasicInfo`, `AppInfo`, `RegInfo`, `StopRightInfo`, `TrialInfo`, `PayInfo`, `DocInfo`, `TransferListInfo`
 
-> ST.87은 KIPRIS Plus 공식 입출력 CSV에 없어 파라미터 명세가 없습니다. ST.27과 동일하게
-> `applicationNumber` + `supplySerialNumber`를 받는 것으로 보이나 미검증입니다.
+> ST.87은 KIPRIS Plus 공식 입출력 CSV에 없지만, `applicationNumber` + `supplySerialNumber`로
+> **실호출 검증 완료** (2026-08-02): `BasicInfo?applicationNumber=3020180012345&supplySerialNumber=1`
+> → `rc=00`, `legalStatusST87Info` (출원일자·등록번호·designSerialnumber 등) 반환.
 
 ---
 

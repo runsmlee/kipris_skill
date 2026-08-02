@@ -49,8 +49,8 @@ https://plus.kipris.or.kr/kipo-api/kipi/{ServicePath}/{operationName}?ServiceKey
 | 해외디자인 | `ForeignDesignAdvencedSearchService` | A | `advancedSearch` → 결과 반환 |
 | 해외상표 | `ForeignTradeMarkAdvencedSearchService` | A | `advancedSearch` → 결과 반환 |
 | 법적 상태 이력 (기본) | `legStatusInfoSearchService` | B | `getLegStatusHistoryInfoSearch` → `rc=00` |
-| 법적 상태 이력 (특허·실용 ST.27) | `legStatusST27InfoSearchService` | A | 경로 유효, `rc=31` 구독 만료 |
-| 법적 상태 이력 (디자인 ST.87) | `legStatusST87InfoSearchService` | A | 경로 유효, `rc=31` 구독 만료 |
+| 법적 상태 이력 (특허·실용 ST.27) | `legStatusST27InfoSearchService` | A | 경로 유효 / `rc=31` — 이 서비스만 활용신청 만료 |
+| 법적 상태 이력 (디자인 ST.87) | `legStatusST87InfoSearchService` | A | `BasicInfo` → `rc=00` 데이터 반환 (디자인 출원번호 `30…`) |
 
 #### 포털 크롤링 확인 (14개)
 
