@@ -6,15 +6,23 @@
 | 그룹 | ServicePath | 게이트웨이 | 인증키 | 우리 키 상태 |
 |------|-------------|-----------|--------|-------------|
 | 법적 상태 이력 (기본 5종) | `legStatusInfoSearchService` | KIPO (`/kipo-api/kipi/`) | `ServiceKey` | ✅ `rc=00` 정상 |
-| 특허·실용 ST.27 (10종) | `legStatusST27InfoSearchService` | OpenAPI (`/openapi/rest/`) | `accessKey` | ⚠️ `rc=31` 구독 만료 |
+| 특허·실용 ST.27 (10종) | `legStatusST27InfoSearchService` | OpenAPI (`/openapi/rest/`) | `accessKey` | ⛔ `rc=31` (KIPRIS 측 이상) |
 | 디자인 ST.87 (8종) | `legStatusST87InfoSearchService` | OpenAPI (`/openapi/rest/`) | `accessKey` | ✅ `rc=00` 정상 |
 
-> **ST.27만 `rc=31 DEADLINE_HAS_EXPIRED_ERROR`** — 출원번호를 무엇으로 바꿔도 동일하므로
-> 데이터 문제가 아니라 **해당 서비스의 활용신청 기간 만료**입니다. 같은 키로 다른 10개 서비스는 정상 동작합니다.
-> KIPRIS Plus에서 ST.27 서비스만 갱신하면 열립니다.
+> ### ⛔ ST.27 경로는 구독이 유효한데도 `rc=31 DEADLINE_HAS_EXPIRED_ERROR`를 반환합니다
 >
-> **⚠️ ST.87에는 디자인 출원번호(`30…`)를 넣어야 합니다.** 특허 출원번호(`10…`)를 넣으면
-> 데이터가 없어 오해하기 쉽습니다 — 권리 종류에 맞는 번호를 쓰세요.
+> 우리 키 문제가 아닙니다. 근거 (2026-08-02 실측):
+>
+> 1. **구독 유효** — 주문 #16 "법적 상태 이력(ST.27/상표/ST.87)" 이용기간 2026.01.21~12.31
+> 2. **같은 상품의 형제 경로는 정상** — ST.87은 `rc=00`으로 데이터 반환
+> 3. **파라미터 검증 이전에 실패** — 파라미터를 아예 안 붙여도 `rc=31`
+> 4. **번호 무관** — 특허(`10…`)·실용(`20…`)·상표(`40…`)·하이픈 표기 전부 동일
+> 5. **경로는 정확함** — 철자 변형 6종(`…Sevice`, `legal…`, `…InfoService` 등)은 전부 302(무효),
+>    `legStatusST27InfoSearchService`만 200 응답 → 등록된 실제 라우트
+> 6. **게이트웨이 무관** — OpenAPI(`accessKey`)·KIPO(`ServiceKey`) 양쪽 다 `rc=31`
+>
+> → KIPRIS 서버 측 라우트 이상으로 판단. HelpDesk(02-6915-1553) 문의 대상입니다.
+> ST.87 데이터로 우회 가능한 범위는 우회하세요.
 
 ### 호출 예시
 
