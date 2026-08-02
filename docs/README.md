@@ -28,12 +28,12 @@ https://plus.kipris.or.kr/openapi/rest/{ServicePath}/{operationName}?accessKey={
 https://plus.kipris.or.kr/kipo-api/kipi/{ServicePath}/{operationName}?ServiceKey={API_KEY}&param1=value1
 ```
 
-### 서비스 경로 매핑 (30개 확인)
+### 서비스 경로 매핑 (33개 확인)
 
 > **⚠️ 모든 호출은 `https://`.** 동일 키·동일 경로라도 `http://`는 `resultCode: 30`
 > (`SERVICE_KEY_IS_NOT_REGISTERED_ERROR`)을 반환합니다. 키 미등록으로 오진하지 마세요.
 
-#### API 키로 검증 완료 (11개) — 실호출 확인 2026-08-02
+#### API 키로 검증 완료 (14개) — 실호출 확인 2026-08-02
 
 | 서비스명 | ServicePath | 게이트웨이 | 확인 근거 |
 |---------|-------------|-----------|----------|
@@ -48,6 +48,9 @@ https://plus.kipris.or.kr/kipo-api/kipi/{ServicePath}/{operationName}?ServiceKey
 | 권리자 변동 이력 | `RightHolderService` | A | `rightHolderInfo` → `rightHolderInfo` 반환 |
 | 해외디자인 | `ForeignDesignAdvencedSearchService` | A | `advancedSearch` → 결과 반환 |
 | 해외상표 | `ForeignTradeMarkAdvencedSearchService` | A | `advancedSearch` → 결과 반환 |
+| 법적 상태 이력 (기본) | `legStatusInfoSearchService` | B | `getLegStatusHistoryInfoSearch` → `rc=00` |
+| 법적 상태 이력 (특허·실용 ST.27) | `legStatusST27InfoSearchService` | A | 경로 유효, `rc=31` 구독 만료 |
+| 법적 상태 이력 (디자인 ST.87) | `legStatusST87InfoSearchService` | A | 경로 유효, `rc=31` 구독 만료 |
 
 #### 포털 크롤링 확인 (14개)
 
@@ -129,8 +132,8 @@ curl "https://plus.kipris.or.kr/openapi/rest/ForeignPatentAdvencedSearchService/
 | 항목 | 수치 |
 |------|------|
 | 포털 등록 서비스 | 50개 |
-| ServicePath 확인 (스킬 지원) | 30개 |
-| ServicePath 미확인 (스킬 미지원) | 20개 |
+| ServicePath 확인 (스킬 지원) | 33개 |
+| ServicePath 미확인 (스킬 미지원) | 19개 |
 | 구현 완료 오퍼레이션 | 16개 |
 | 폐기예정 오퍼레이션 | 30개 |
 
@@ -148,7 +151,7 @@ curl "https://plus.kipris.or.kr/openapi/rest/ForeignPatentAdvencedSearchService/
 | 6 | 디자인 행정처리 이력 | 2개 | ⚠️ | ❌ 0/2 | [상세](services/design_admin_history.md) |
 | 7 | 상표 행정처리 이력 | 2개 | ⚠️ | ❌ 0/2 | [상세](services/trademark_admin_history.md) |
 | 8 | 상표 출원 속보 | 54개 | ✅ | ❌ 0/54 | [상세](services/trademark.md) |
-| 9 | 법적 상태 이력 (ST.27/ST.87) | 13개 | ⚠️ | ❌ 0/13 | [상세](services/legal_status.md) |
+| 9 | 법적 상태 이력 (ST.27/ST.87) | 23개 | ✅ | ❌ 0/23 | [상세](services/legal_status.md) |
 | 10 | 특허·실용 통지서 마감기한 | 6개 | ✅ | ❌ 0/6 | [상세](services/patent_notice_deadline.md) |
 | 11 | 등록사항 | 12개 | ✅ | ❌ 0/12 | [상세](services/registration.md) |
 | 12 | 권리자 변동 이력 | 8개 | ✅ | ❌ 0/8 | [상세](services/right_holder_history.md) |

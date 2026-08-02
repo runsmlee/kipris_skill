@@ -1,33 +1,83 @@
 # 법적 상태 이력 (특허·실용 ST.27, 상표, 디자인 ST.87)
 
-> ⚠️ **ServicePath 미확인 — 스킬 미지원**
-> 2026-08-02 실측으로 다음 후보를 **배제**했습니다 (OpenAPI 게이트웨이에서 전부 302 = 무효 경로):
-> `LegalStatusService`, `LegalStatusInfoService`, `LegalStatusInfoSearchService`,
-> `legalStatusInfoService`, `legalStatusInfoSearchService`, `legalStatusService`,
-> `LegalStatusST27Service`, `ST27Service`, `LegalStatusHistoryService`, `LegStatusService`
->
-> **KIPO 게이트웨이(`/kipo-api/kipi/`)로는 탐침 불가** — 존재하지 않는 경로에도 동일하게
-> `rc=31 DEADLINE_HAS_EXPIRED_ERROR`를 반환해 유효/무효 판별이 안 됩니다.
-> 경로는 KIPRIS Plus 포털에서 직접 확인해야 합니다.
+> ✅ **ServicePath 3종 — KIPRIS Plus 포털에서 확인 + 실호출 검증 (2026-08-02)**
+> 하나의 서비스처럼 보이지만 **경로도 게이트웨이도 다른 3개 그룹**입니다.
 
-- **API 유형**: REST
-- **오퍼레이션 수**: 13개 (명세는 완비, 경로만 미확인)
+| 그룹 | ServicePath | 게이트웨이 | 인증키 | 우리 키 상태 |
+|------|-------------|-----------|--------|-------------|
+| 법적 상태 이력 (기본 5종) | `legStatusInfoSearchService` | KIPO (`/kipo-api/kipi/`) | `ServiceKey` | ✅ `rc=00` 정상 |
+| 특허·실용 ST.27 (10종) | `legStatusST27InfoSearchService` | OpenAPI (`/openapi/rest/`) | `accessKey` | ⚠️ `rc=31` 구독 만료 |
+| 디자인 ST.87 (8종) | `legStatusST87InfoSearchService` | OpenAPI (`/openapi/rest/`) | `accessKey` | ⚠️ `rc=31` 구독 만료 |
+
+> **ST.27/ST.87은 경로가 유효한데 우리 키가 구독 만료 상태**입니다 (`rc=31 DEADLINE_HAS_EXPIRED_ERROR`).
+> 무효 경로는 302를, 유효 경로는 200을 반환하므로 이 둘은 구분됩니다 — 경로 문제가 아니라 **KIPRIS Plus 활용신청/갱신** 문제입니다.
+
+### 호출 예시
+
+```bash
+# 기본 이력 (KIPO 게이트웨이 — 현재 사용 가능)
+curl -s "https://plus.kipris.or.kr/kipo-api/kipi/legStatusInfoSearchService/getLegStatusHistoryInfoSearch?ServiceKey=${ENCODED_KEY}&applicationNumber=1020188870000"
+
+# ST.27 이력 (OpenAPI 게이트웨이 — 구독 갱신 후 사용 가능)
+curl -s "https://plus.kipris.or.kr/openapi/rest/legStatusST27InfoSearchService/BasicInfo?accessKey=${ENCODED_KEY}&applicationNumber=1020188870000&supplySerialNumber=1"
+```
 
 ---
 
-## 이력정보조회
+## 그룹 1 — 법적 상태 이력 (KIPO 게이트웨이, `legStatusInfoSearchService`)
+
+오퍼레이션 ID는 포털에 명시되어 있습니다.
+
+| 오퍼레이션 | ID | 상태 |
+|-----------|-----|------|
+| 이력정보조회 | `getLegStatusHistoryInfoSearch` | ✅ `rc=00` 실측 |
+| 이벤트정보조회 | `getLegStatusEventInfoSearch` | ✅ `rc=00` 실측 |
+| 변동정보 | `getTransferListInfoSearch` | 포털 확인 |
+| 현재정보조회 | `legalStatusBasicInfo` | 포털 확인 |
+| 코드정보조회 | `legalStatusCodeInfo` | 포털 확인 |
+
+## 그룹 2 — 특허·실용 ST.27 (`legStatusST27InfoSearchService`)
+
+> 포털이 오퍼레이션 ID를 공개하지 않아 **실호출 탐침으로 확인**했습니다 (200 = 유효, 302 = 무효).
+> 한글 오퍼레이션명 ↔ ID 대응은 응답 루트 키(`legalStatusST27AppInfo` 등) 기준 **추론**입니다.
+
+| 한글 오퍼레이션명 | ID (실측 유효) |
+|------------------|---------------|
+| 이력 정보 조회 | `BasicInfo` |
+| 출원(A) 이벤트 정보 조회 | `AppInfo` |
+| 등록전·후심리(E·L·W) 이벤트 정보 조회 | `RegInfo` |
+| IP권리존속기간이후의보호(G) 이벤트 정보 조회 | `AfterRightInfo` |
+| IP권리중단(H) 이벤트 정보 조회 | `StopRightInfo` |
+| 문서수정(P) 이벤트 정보 조회 | `DocInfo` |
+| 납부(U) 이벤트 정보 조회 | `PayInfo` |
+| 심판(V) 이벤트 정보 조회 | `TrialInfo` |
+| 변동정보 | `transferListInfo` |
+| 출원(A) 관련 추가이벤트(원출원등록) 정보 조회 | ❓ 미발견 |
+
+## 그룹 3 — 디자인 ST.87 (`legStatusST87InfoSearchService`)
+
+포털 기준 8종, 실호출 탐침으로 8종 전부 유효 확인:
+`BasicInfo`, `AppInfo`, `RegInfo`, `StopRightInfo`, `TrialInfo`, `PayInfo`, `DocInfo`, `TransferListInfo`
+
+> ST.87은 KIPRIS Plus 공식 입출력 CSV에 없어 파라미터 명세가 없습니다. ST.27과 동일하게
+> `applicationNumber` + `supplySerialNumber`를 받는 것으로 보이나 미검증입니다.
+
+---
+
+## 오퍼레이션별 파라미터 명세
+
+### 이력정보조회
 `getLegStatusHistoryInfoSearch`
 
 - **분류**: 법적 상태 이력
-- **상태**: ❌ 미구현 (경로 미확인)
 
-### 요청 파라미터 (IN)
+**요청 (IN)**
 
 | 항목명 | 설명 | 비고 |
 |--------|------|------|
 | `applicationNumber` | 출원번호 |  |
 
-### 응답 파라미터 (OUT)
+**응답 (OUT)**
 
 | 항목명 | 설명 | 비고 |
 |--------|------|------|
@@ -44,19 +94,18 @@
 
 ---
 
-## 이벤트정보조회
+### 이벤트정보조회
 `getLegStatusEventInfoSearch`
 
 - **분류**: 법적 상태 이력
-- **상태**: ❌ 미구현 (경로 미확인)
 
-### 요청 파라미터 (IN)
+**요청 (IN)**
 
 | 항목명 | 설명 | 비고 |
 |--------|------|------|
 | `applicationNumber` | 출원번호 |  |
 
-### 응답 파라미터 (OUT)
+**응답 (OUT)**
 
 | 항목명 | 설명 | 비고 |
 |--------|------|------|
@@ -71,13 +120,12 @@
 
 ---
 
-## 현재정보조회
+### 현재정보조회
 `legalStatusBasicInfo`
 
 - **분류**: 법적 상태 이력
-- **상태**: ❌ 미구현 (경로 미확인)
 
-### 요청 파라미터 (IN)
+**요청 (IN)**
 
 | 항목명 | 설명 | 비고 |
 |--------|------|------|
@@ -85,7 +133,7 @@
 | `searchRight` | 권리 | (all : 전체, p : 특허, u : 실용신안, d : 디자인, t : 상표) ※입력방식(ex : p) |
 | `transferDate` | 변동일자 | ※ 입력방식(ex : 20160713) |
 
-### 응답 파라미터 (OUT)
+**응답 (OUT)**
 
 | 항목명 | 설명 | 비고 |
 |--------|------|------|
@@ -95,19 +143,18 @@
 
 ---
 
-## 코드정보조회
+### 코드정보조회
 `legalStatusCodeInfo`
 
 - **분류**: 법적 상태 이력
-- **상태**: ❌ 미구현 (경로 미확인)
 
-### 요청 파라미터 (IN)
+**요청 (IN)**
 
 | 항목명 | 설명 | 비고 |
 |--------|------|------|
 | `legalStatusCode` | 법적상태코드 |  |
 
-### 응답 파라미터 (OUT)
+**응답 (OUT)**
 
 | 항목명 | 설명 | 비고 |
 |--------|------|------|
@@ -121,20 +168,19 @@
 
 ---
 
-## 이력 정보 조회
-_(오퍼레이션 ID 미공개 — 응답 루트 키로 식별)_
+### 이력 정보 조회
+`BasicInfo`
 
 - **분류**: 특허·실용(ST.27)
-- **상태**: ❌ 미구현 (경로 미확인)
 
-### 요청 파라미터 (IN)
+**요청 (IN)**
 
 | 항목명 | 설명 | 비고 |
 |--------|------|------|
 | `applicationNumber` | 출원번호 |  |
 | `supplySerialNumber` | 일련번호 |  |
 
-### 응답 파라미터 (OUT)
+**응답 (OUT)**
 
 | 항목명 | 설명 | 비고 |
 |--------|------|------|
@@ -163,20 +209,19 @@ _(오퍼레이션 ID 미공개 — 응답 루트 키로 식별)_
 
 ---
 
-## 출원(A) 이벤트 정보 조회
-_(오퍼레이션 ID 미공개 — 응답 루트 키로 식별)_
+### 출원(A) 이벤트 정보 조회
+`AppInfo`
 
 - **분류**: 오퍼레이션
-- **상태**: ❌ 미구현 (경로 미확인)
 
-### 요청 파라미터 (IN)
+**요청 (IN)**
 
 | 항목명 | 설명 | 비고 |
 |--------|------|------|
 | `applicationNumber` | 출원번호 |  |
 | `supplySerialNumber` | 일련번호 |  |
 
-### 응답 파라미터 (OUT)
+**응답 (OUT)**
 
 | 항목명 | 설명 | 비고 |
 |--------|------|------|
@@ -189,20 +234,19 @@ _(오퍼레이션 ID 미공개 — 응답 루트 키로 식별)_
 
 ---
 
-## 등록전·후심리(E·L·W) 이벤트 정보 조회
-_(오퍼레이션 ID 미공개 — 응답 루트 키로 식별)_
+### 등록전·후심리(E·L·W) 이벤트 정보 조회
+`RegInfo`
 
 - **분류**: 오퍼레이션
-- **상태**: ❌ 미구현 (경로 미확인)
 
-### 요청 파라미터 (IN)
+**요청 (IN)**
 
 | 항목명 | 설명 | 비고 |
 |--------|------|------|
 | `applicationNumber` | 출원번호 |  |
 | `supplySerialNumber` | 일련번호 |  |
 
-### 응답 파라미터 (OUT)
+**응답 (OUT)**
 
 | 항목명 | 설명 | 비고 |
 |--------|------|------|
@@ -219,20 +263,19 @@ _(오퍼레이션 ID 미공개 — 응답 루트 키로 식별)_
 
 ---
 
-## IP권리존속기간이후의보호(G) 이벤트 정보 조회
-_(오퍼레이션 ID 미공개 — 응답 루트 키로 식별)_
+### IP권리존속기간이후의보호(G) 이벤트 정보 조회
+`AfterRightInfo`
 
 - **분류**: 오퍼레이션
-- **상태**: ❌ 미구현 (경로 미확인)
 
-### 요청 파라미터 (IN)
+**요청 (IN)**
 
 | 항목명 | 설명 | 비고 |
 |--------|------|------|
 | `applicationNumber` | 출원번호 |  |
 | `supplySerialNumber` | 일련번호 |  |
 
-### 응답 파라미터 (OUT)
+**응답 (OUT)**
 
 | 항목명 | 설명 | 비고 |
 |--------|------|------|
@@ -249,20 +292,19 @@ _(오퍼레이션 ID 미공개 — 응답 루트 키로 식별)_
 
 ---
 
-## IP권리중단(H) 이벤트 정보 조회
-_(오퍼레이션 ID 미공개 — 응답 루트 키로 식별)_
+### IP권리중단(H) 이벤트 정보 조회
+`StopRightInfo`
 
 - **분류**: 오퍼레이션
-- **상태**: ❌ 미구현 (경로 미확인)
 
-### 요청 파라미터 (IN)
+**요청 (IN)**
 
 | 항목명 | 설명 | 비고 |
 |--------|------|------|
 | `applicationNumber` | 출원번호 |  |
 | `supplySerialNumber` | 일련번호 |  |
 
-### 응답 파라미터 (OUT)
+**응답 (OUT)**
 
 | 항목명 | 설명 | 비고 |
 |--------|------|------|
@@ -275,20 +317,19 @@ _(오퍼레이션 ID 미공개 — 응답 루트 키로 식별)_
 
 ---
 
-## 문서수정(P) 이벤트 정보 조회
-_(오퍼레이션 ID 미공개 — 응답 루트 키로 식별)_
+### 문서수정(P) 이벤트 정보 조회
+`DocInfo`
 
 - **분류**: 오퍼레이션
-- **상태**: ❌ 미구현 (경로 미확인)
 
-### 요청 파라미터 (IN)
+**요청 (IN)**
 
 | 항목명 | 설명 | 비고 |
 |--------|------|------|
 | `applicationNumber` | 출원번호 |  |
 | `supplySerialNumber` | 일련번호 |  |
 
-### 응답 파라미터 (OUT)
+**응답 (OUT)**
 
 | 항목명 | 설명 | 비고 |
 |--------|------|------|
@@ -303,20 +344,19 @@ _(오퍼레이션 ID 미공개 — 응답 루트 키로 식별)_
 
 ---
 
-## 납부(U) 이벤트 정보 조회
-_(오퍼레이션 ID 미공개 — 응답 루트 키로 식별)_
+### 납부(U) 이벤트 정보 조회
+`PayInfo`
 
 - **분류**: 오퍼레이션
-- **상태**: ❌ 미구현 (경로 미확인)
 
-### 요청 파라미터 (IN)
+**요청 (IN)**
 
 | 항목명 | 설명 | 비고 |
 |--------|------|------|
 | `applicationNumber` | 출원번호 |  |
 | `supplySerialNumber` | 일련번호 |  |
 
-### 응답 파라미터 (OUT)
+**응답 (OUT)**
 
 | 항목명 | 설명 | 비고 |
 |--------|------|------|
@@ -330,20 +370,19 @@ _(오퍼레이션 ID 미공개 — 응답 루트 키로 식별)_
 
 ---
 
-## 심판(V) 이벤트 정보 조회
-_(오퍼레이션 ID 미공개 — 응답 루트 키로 식별)_
+### 심판(V) 이벤트 정보 조회
+`TrialInfo`
 
 - **분류**: 오퍼레이션
-- **상태**: ❌ 미구현 (경로 미확인)
 
-### 요청 파라미터 (IN)
+**요청 (IN)**
 
 | 항목명 | 설명 | 비고 |
 |--------|------|------|
 | `applicationNumber` | 출원번호 |  |
 | `supplySerialNumber` | 일련번호 |  |
 
-### 응답 파라미터 (OUT)
+**응답 (OUT)**
 
 | 항목명 | 설명 | 비고 |
 |--------|------|------|
@@ -361,20 +400,19 @@ _(오퍼레이션 ID 미공개 — 응답 루트 키로 식별)_
 
 ---
 
-## 변동정보
-_(오퍼레이션 ID 미공개 — 응답 루트 키로 식별)_
+### 변동정보
+`transferListInfo`
 
 - **분류**: 오퍼레이션
-- **상태**: ❌ 미구현 (경로 미확인)
 
-### 요청 파라미터 (IN)
+**요청 (IN)**
 
 | 항목명 | 설명 | 비고 |
 |--------|------|------|
 | `searchType` | 검색코드 | D-이력, A-출원 E-등록전·후심리, G-IP권리존속기간이후, H-IP권리중단, P-문서수정, U-납부, V-심판 |
 | `transferDate` | 변동일자 |  |
 
-### 응답 파라미터 (OUT)
+**응답 (OUT)**
 
 | 항목명 | 설명 | 비고 |
 |--------|------|------|

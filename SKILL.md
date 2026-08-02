@@ -126,6 +126,7 @@ echo $KIPRIS_API_KEY
 - 해외 서지상세·청구항·전문 → `bibliographicInfo` / `demandParagraphInfo` / `openFullTextInfo` (**`ltrtno` 선확보 필요 — 위 "2단계 호출" 참고**)
 - 출원인·대리인·발명자 이름 정규화, 인물번호 확보 → `CommonSearchService` (`docs/services/common_search.md`)
 - 권리 이전·권리자 변경 이력 → `RightHolderService` (**등록번호 기준** — `docs/services/right_holder_history.md`)
+- 법적 상태(출원→소멸 전주기) → `legStatusInfoSearchService` (KIPO 게이트웨이·`ServiceKey`) / ST.27·ST.87은 OpenAPI 게이트웨이 별도 경로 — `docs/services/legal_status.md`
 
 ### 3단계: URL 구성 및 curl 실행
 
@@ -214,7 +215,7 @@ Tier 1에 없는 오퍼레이션 요청 시, `docs/services/` 디렉토리의 �
 | 6 | 디자인 행정처리 이력 | `docs/services/design_admin_history.md` | 2 | ⚠️ |
 | 7 | 상표 행정처리 이력 | `docs/services/trademark_admin_history.md` | 2 | ⚠️ |
 | 8 | 상표 출원 속보 | `docs/services/trademark.md` | 54 | ✅ |
-| 9 | 법적 상태 이력 (ST.27/ST.87) | `docs/services/legal_status.md` | 13 | ⚠️ |
+| 9 | 법적 상태 이력 (ST.27/ST.87) | `docs/services/legal_status.md` | 23 | ✅ |
 | 10 | 특허·실용 통지서 마감기한 | `docs/services/patent_notice_deadline.md` | 6 | ✅ |
 | 11 | 등록사항 | `docs/services/registration.md` | 12 | ✅ |
 | 12 | 권리자 변동 이력 | `docs/services/right_holder_history.md` | 8 | ✅ |
