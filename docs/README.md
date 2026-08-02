@@ -28,12 +28,12 @@ https://plus.kipris.or.kr/openapi/rest/{ServicePath}/{operationName}?accessKey={
 https://plus.kipris.or.kr/kipo-api/kipi/{ServicePath}/{operationName}?ServiceKey={API_KEY}&param1=value1
 ```
 
-### 서비스 경로 매핑 (25개 확인)
+### 서비스 경로 매핑 (30개 확인)
 
 > **⚠️ 모든 호출은 `https://`.** 동일 키·동일 경로라도 `http://`는 `resultCode: 30`
 > (`SERVICE_KEY_IS_NOT_REGISTERED_ERROR`)을 반환합니다. 키 미등록으로 오진하지 마세요.
 
-#### API 키로 검증 완료 (6개) — 실호출 확인 2026-08-02
+#### API 키로 검증 완료 (11개) — 실호출 확인 2026-08-02
 
 | 서비스명 | ServicePath | 게이트웨이 | 확인 근거 |
 |---------|-------------|-----------|----------|
@@ -43,6 +43,11 @@ https://plus.kipris.or.kr/kipo-api/kipi/{ServicePath}/{operationName}?ServiceKey
 | 특허·실용 인용문헌 | `CitationService` | A | `rc=11` 필수 파라미터 누락 → 경로 유효 |
 | 의견제출통지서 | `IntermediateDocumentOPService` | A | `advancedSearchInfo` → 정상 응답 |
 | 거절결정서 | `IntermediateDocumentREService` | A | `advancedSearchInfo` → 정상 응답 |
+| 해외특허 (전문/도면) | `ForeignPatentImageAndFullTextService` | A | `openFullTextInfo` → 전문 URL 반환 |
+| 공통 (인명 검색·심판 목록) | `CommonSearchService` | A | `CommonSearchApplicantInfo` → `commonSearchPersonInfo` 반환 |
+| 권리자 변동 이력 | `RightHolderService` | A | `rightHolderInfo` → `rightHolderInfo` 반환 |
+| 해외디자인 | `ForeignDesignAdvencedSearchService` | A | `advancedSearch` → 결과 반환 |
+| 해외상표 | `ForeignTradeMarkAdvencedSearchService` | A | `advancedSearch` → 결과 반환 |
 
 #### 포털 크롤링 확인 (14개)
 
@@ -123,10 +128,10 @@ curl "https://plus.kipris.or.kr/openapi/rest/ForeignPatentAdvencedSearchService/
 
 | 항목 | 수치 |
 |------|------|
-| 포털 등록 서비스 | 49개 |
-| ServicePath 확인 (스킬 지원) | 25개 |
-| ServicePath 미확인 (스킬 미지원) | 24개 |
-| 구현 완료 오퍼레이션 | 15개 |
+| 포털 등록 서비스 | 50개 |
+| ServicePath 확인 (스킬 지원) | 30개 |
+| ServicePath 미확인 (스킬 미지원) | 20개 |
+| 구현 완료 오퍼레이션 | 16개 |
 | 폐기예정 오퍼레이션 | 30개 |
 
 ## 서비스 목록
@@ -143,17 +148,17 @@ curl "https://plus.kipris.or.kr/openapi/rest/ForeignPatentAdvencedSearchService/
 | 6 | 디자인 행정처리 이력 | 2개 | ⚠️ | ❌ 0/2 | [상세](services/design_admin_history.md) |
 | 7 | 상표 행정처리 이력 | 2개 | ⚠️ | ❌ 0/2 | [상세](services/trademark_admin_history.md) |
 | 8 | 상표 출원 속보 | 54개 | ✅ | ❌ 0/54 | [상세](services/trademark.md) |
-| 9 | 법적 상태 이력 | 5개 | ⚠️ | ❌ 0/5 | [상세](services/legal_status.md) |
+| 9 | 법적 상태 이력 (ST.27/ST.87) | 13개 | ⚠️ | ❌ 0/13 | [상세](services/legal_status.md) |
 | 10 | 특허·실용 통지서 마감기한 | 6개 | ✅ | ❌ 0/6 | [상세](services/patent_notice_deadline.md) |
 | 11 | 등록사항 | 12개 | ✅ | ❌ 0/12 | [상세](services/registration.md) |
-| 12 | 권리자 변동 이력 | 3개 | ⚠️ | ❌ 0/3 | [상세](services/right_holder_history.md) |
+| 12 | 권리자 변동 이력 | 8개 | ✅ | ❌ 0/8 | [상세](services/right_holder_history.md) |
 | 13 | 분류코드 | 8개 | ✅ | ❌ 0/8 | [상세](services/classification_code.md) |
 | 14 | 심판사항 | 31개 | ✅ | ❌ 0/31 | [상세](services/trial.md) |
 | 15 | 대표 출원인 | 4개 | ✅ | ❌ 0/4 | [상세](services/representative_applicant.md) |
 | 16 | 시소러스 | 2개 | ✅ | ❌ 0/2 | [상세](services/thesaurus.md) |
 | 17 | 한국특허영문초록(KPA) | 26개 | ✅ | ❌ 0/26 | [상세](services/kpa_english_abstract.md) |
 | 18 | 기계번역용 국문초록 | 1개 | ✅ | ❌ 0/1 | [상세](services/machine_translation_abstract.md) |
-| 19 | 해외특허 | 81개 | ✅ | ✅ 8/81 | [상세](services/foreign_patent.md) |
+| 19 | 해외특허 | 81개 | ✅ | ✅ 9/81 | [상세](services/foreign_patent.md) |
 | 20 | 특허 패밀리 | 5개 | ✅ | ❌ 0/5 | [상세](services/patent_family.md) |
 | 21 | 다인용 선행문헌 | 2개 | ⚠️ | ❌ 0/2 | [상세](services/multi_citation.md) |
 | 22 | 국유특허 | 2개 | ⚠️ | ❌ 0/2 | [상세](services/government_patent.md) |
@@ -168,8 +173,8 @@ curl "https://plus.kipris.or.kr/openapi/rest/ForeignPatentAdvencedSearchService/
 | 31 | 출원인 법인 | 5개 | ✅ | ❌ 0/5 | [상세](services/applicant_corporation.md) |
 | 32 | 디자인 분류코드 변동 이력 | 3개 | ⚠️ | ❌ 0/3 | [상세](services/design_classification_history.md) |
 | 33 | 상표 분류코드 변동 이력 | 2개 | ✅ | ❌ 0/2 | [상세](services/trademark_classification_history.md) |
-| 34 | 해외디자인 | 31개 | ⚠️ | ❌ 0/31 | [상세](services/foreign_design.md) |
-| 35 | 해외상표 | 22개 | ⚠️ | ❌ 0/22 | [상세](services/foreign_trademark.md) |
+| 34 | 해외디자인 | 31개 | ✅ | ❌ 0/31 | [상세](services/foreign_design.md) |
+| 35 | 해외상표 | 22개 | ✅ | ❌ 0/22 | [상세](services/foreign_trademark.md) |
 | 36 | 출원인 명칭 변동 이력 | 3개 | ⚠️ | ❌ 0/3 | [상세](services/applicant_name_history.md) |
 | 37 | 출원인 기술분야 | 2개 | ⚠️ | ❌ 0/2 | [상세](services/applicant_tech_field.md) |
 | 38 | 등록결정서 | 9개 | ⚠️ | ❌ 0/9 | [상세](services/registration_decision.md) |
@@ -184,6 +189,7 @@ curl "https://plus.kipris.or.kr/openapi/rest/ForeignPatentAdvencedSearchService/
 | 47 | 품종보호권 등록 식물 명칭 | 3개 | ⚠️ | ❌ 0/3 | [상세](services/variety_protection.md) |
 | 48 | 일본 특허 합금조성비 | 5개 | ⚠️ | ❌ 0/5 | [상세](services/japan_patent_alloy.md) |
 | 49 | 특허 중한 코퍼스 | 1개 | ⚠️ | ❌ 0/1 | [상세](services/patent_cn_kr_corpus.md) |
+| 50 | 공통 (인명 검색·심판 목록) | 10개 | ✅ | ❌ 0/10 | [상세](services/common_search.md) |
 
 ## 구현된 오퍼레이션 요약
 

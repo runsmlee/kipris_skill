@@ -33,7 +33,7 @@ echo $KIPRIS_API_KEY
 
 > 두 게이트웨이가 동일 키를 공유할 수도 있고, 별도일 수도 있습니다. 사용자에게 확인하세요.
 
-## 구현된 오퍼레이션 (Tier 1) — 즉시 사용 가능 (15개)
+## 구현된 오퍼레이션 (Tier 1) — 즉시 사용 가능 (16개)
 
 ### 한국 특허·실용신안 (7개)
 
@@ -47,13 +47,14 @@ echo $KIPRIS_API_KEY
 | 서지상세 | `getBibliographyDetailInfoSearch` | KIPO | `ServiceKey` | `patUtiModInfoSearchSevice` | `response.body.item` | `applicationNumber` |
 | 서지요약 | `getBibliographySumryInfoSearch` | KIPO | `ServiceKey` | `patUtiModInfoSearchSevice` | `response.body.items.item` | `applicationNumber` |
 
-### 해외특허 (8개)
+### 해외특허 (9개)
 
 | 오퍼레이션 | ID | 게이트웨이 | 인증키 | ServicePath | 응답 루트 키 | 주요 파라미터 |
 |-----------|-----|----------|--------|-------------|------------|-------------|
 | 전체검색(항목별) | `advancedSearch` | OpenAPI | `accessKey` | `ForeignPatentAdvencedSearchService` | `response.body.items.searchResult` | `free`, `inventionName`, `applicant`, `inventors`, `agents`, `ipc`, `upc`, `fi`, `fterm`, `epc`, `applicationNo`, `openNo`, `registerNo`, `priorityNo`, `internationalOpenNo`, `internationalApplicationNo`, `applicationdate`, `openDate`, `registerDate`, `priorityDate`, `internationalOpenDate`, `internationalApplicationDate`, `abstracts`, `claimExtend`, `detailsDescription`, `collectionValues`, `currentPage`, `sortField`, `sortState` (전체 31개 필드 → `docs/services/foreign_patent.md`) |
 | 서지상세 | `bibliographicInfo` | OpenAPI | `accessKey` | `ForeignPatentBibliographicService` | `response.body.items` | `literatureNumber` (검색 결과의 `ltrtno`), `countryCode` |
 | 청구항 | `demandParagraphInfo` | OpenAPI | `accessKey` | `ForeignPatentBibliographicService` | `response.body.items` | `literatureNumber`, `countryCode` |
+| 공개전문 경로 | `openFullTextInfo` | OpenAPI | `accessKey` | `ForeignPatentImageAndFullTextService` | `response.body.items.openFullTextInfo.path` | `literatureNumber`, `countryCode` |
 | 자유검색 | `freeSearch` | OpenAPI | `accessKey` | `ForeignPatentAdvencedSearchService` | `response.body.items.searchResult` | `free`, `collectionValues` (국가코드), `currentPage` |
 | 출원번호 | `applicationNumberSearch` | OpenAPI | `accessKey` | `ForeignPatentAdvencedSearchService` | `response.body.items.searchResult` | `applicationNumber`, `collectionValues`, `currentPage` |
 | 국제공개번호 | `internationalOpenNumberSearch` | OpenAPI | `accessKey` | `ForeignPatentAdvencedSearchService` | `response.body.items.searchResult` | `internationalOpenNumber`, `collectionValues`, `currentPage` |
@@ -93,7 +94,9 @@ https://plus.kipris.or.kr/kipo-api/kipi/{ServicePath}/{operationId}?ServiceKey={
 `ForeignPatentBibliographicService`는 출원번호가 아니라 **문헌번호(`ltrtno`)**를 받습니다:
 
 1. `ForeignPatentAdvencedSearchService`로 검색 → 결과의 `ltrtno` 확보 (예: `000012573236B2`)
-2. `bibliographicInfo` / `demandParagraphInfo`에 `literatureNumber={ltrtno}&countryCode={국가코드}` 전달
+2. `bibliographicInfo` / `demandParagraphInfo` / `openFullTextInfo`에 `literatureNumber={ltrtno}&countryCode={국가코드}` 전달
+
+`openFullTextInfo`는 데이터가 아니라 **KIPRIS 전문 다운로드 URL**(`path`)을 돌려줍니다.
 
 ## API 사용 제한
 
@@ -120,7 +123,9 @@ echo $KIPRIS_API_KEY
 - 상세 서지정보 → `getBibliographyDetailInfoSearch`
 - 요약 서지정보 → `getBibliographySumryInfoSearch`
 - 전체검색 (다항목) → `getAdvancedSearch` (국내) / `advancedSearch` (해외, IPC·CPC·F-Term 등 31개 필드)
-- 해외 서지상세·청구항 → `bibliographicInfo` / `demandParagraphInfo` (**`ltrtno` 선확보 필요 — 위 "2단계 호출" 참고**)
+- 해외 서지상세·청구항·전문 → `bibliographicInfo` / `demandParagraphInfo` / `openFullTextInfo` (**`ltrtno` 선확보 필요 — 위 "2단계 호출" 참고**)
+- 출원인·대리인·발명자 이름 정규화, 인물번호 확보 → `CommonSearchService` (`docs/services/common_search.md`)
+- 권리 이전·권리자 변경 이력 → `RightHolderService` (**등록번호 기준** — `docs/services/right_holder_history.md`)
 
 ### 3단계: URL 구성 및 curl 실행
 
@@ -194,7 +199,7 @@ print(json.dumps(xml_to_dict(tree.getroot()), ensure_ascii=False, indent=2))
 - `colString` — 국가코드
 - `ipc` — IPC코드
 
-## 전체 서비스 카탈로그 (Tier 2) — 49개 서비스
+## 전체 서비스 카탈로그 (Tier 2) — 50개 서비스
 
 Tier 1에 없는 오퍼레이션 요청 시, `docs/services/` 디렉토리의 해당 문서를 읽어 파라미터를 확인하세요.
 경로 열: ✅ = ServicePath 확인 (즉시 호출 가능), ⚠️ = ServicePath 미확인
@@ -209,10 +214,10 @@ Tier 1에 없는 오퍼레이션 요청 시, `docs/services/` 디렉토리의 �
 | 6 | 디자인 행정처리 이력 | `docs/services/design_admin_history.md` | 2 | ⚠️ |
 | 7 | 상표 행정처리 이력 | `docs/services/trademark_admin_history.md` | 2 | ⚠️ |
 | 8 | 상표 출원 속보 | `docs/services/trademark.md` | 54 | ✅ |
-| 9 | 법적 상태 이력 | `docs/services/legal_status.md` | 5 | ⚠️ |
+| 9 | 법적 상태 이력 (ST.27/ST.87) | `docs/services/legal_status.md` | 13 | ⚠️ |
 | 10 | 특허·실용 통지서 마감기한 | `docs/services/patent_notice_deadline.md` | 6 | ✅ |
 | 11 | 등록사항 | `docs/services/registration.md` | 12 | ✅ |
-| 12 | 권리자 변동 이력 | `docs/services/right_holder_history.md` | 3 | ⚠️ |
+| 12 | 권리자 변동 이력 | `docs/services/right_holder_history.md` | 8 | ✅ |
 | 13 | 분류코드 | `docs/services/classification_code.md` | 8 | ✅ |
 | 14 | 심판사항 | `docs/services/trial.md` | 31 | ✅ |
 | 15 | 대표 출원인 | `docs/services/representative_applicant.md` | 4 | ✅ |
@@ -234,8 +239,8 @@ Tier 1에 없는 오퍼레이션 요청 시, `docs/services/` 디렉토리의 �
 | 31 | 출원인 법인 | `docs/services/applicant_corporation.md` | 5 | ✅ |
 | 32 | 디자인 분류코드 변동 이력 | `docs/services/design_classification_history.md` | 3 | ⚠️ |
 | 33 | 상표 분류코드 변동 이력 | `docs/services/trademark_classification_history.md` | 2 | ✅ |
-| 34 | 해외디자인 | `docs/services/foreign_design.md` | 31 | ⚠️ |
-| 35 | 해외상표 | `docs/services/foreign_trademark.md` | 22 | ⚠️ |
+| 34 | 해외디자인 | `docs/services/foreign_design.md` | 31 | ✅ |
+| 35 | 해외상표 | `docs/services/foreign_trademark.md` | 22 | ✅ |
 | 36 | 출원인 명칭 변동 이력 | `docs/services/applicant_name_history.md` | 3 | ⚠️ |
 | 37 | 출원인 기술분야 | `docs/services/applicant_tech_field.md` | 2 | ⚠️ |
 | 38 | 등록결정서 | `docs/services/registration_decision.md` | 9 | ⚠️ |
@@ -250,6 +255,7 @@ Tier 1에 없는 오퍼레이션 요청 시, `docs/services/` 디렉토리의 �
 | 47 | 품종보호권 등록 식물 명칭 | `docs/services/variety_protection.md` | 3 | ⚠️ |
 | 48 | 일본 특허 합금조성비 | `docs/services/japan_patent_alloy.md` | 5 | ⚠️ |
 | 49 | 특허 중한 코퍼스 | `docs/services/patent_cn_kr_corpus.md` | 1 | ⚠️ |
+| 50 | 공통 (인명 검색·심판 목록) | `docs/services/common_search.md` | 10 | ✅ |
 
 ## 사용 예시
 
